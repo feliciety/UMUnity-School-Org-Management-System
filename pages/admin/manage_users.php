@@ -739,9 +739,13 @@ $result = $conn->query($sql);
             });
         });
 
+
+
+
+        // ✅ Open the correct modal before suspending/activating a user
         $(document).on("click", ".suspendUser, .activateUser", function() {
             let userId = $(this).data("id");
-            let currentStatus = $(this).data("status");
+            let currentStatus = $(this).attr("data-status"); // Use attr instead of data()
 
             if (currentStatus === "active") {
                 $("#suspend_user_id").val(userId);
@@ -755,7 +759,6 @@ $result = $conn->query($sql);
         // ✅ Confirm Suspend User
         $(document).on("click", "#confirmSuspendUser", function() {
             let userId = $("#suspend_user_id").val();
-            let row = $(`[data-id='${userId}']`).closest("tr");
 
             $.post("users/change_status.php", {
                 user_id: userId,
@@ -767,14 +770,16 @@ $result = $conn->query($sql);
                 if (res.status === "success") {
                     $("#suspendUserModal").modal("hide");
 
-                    let btn = row.find(".suspendUser, .activateUser");
-                    let badge = row.find(".badge");
-                    let statusColumn = row.find(".status-column");
+                    // ✅ Update UI Immediately
+                    let button = $(`.suspendUser[data-id='${userId}'], .activateUser[data-id='${userId}']`).closest("tr");
+                    let btn = button.find(".suspendUser, .activateUser");
+                    let badge = button.find(".badge");
+                    let statusColumn = button.find(".status-column");
 
                     btn.removeClass("suspendUser").addClass("activateUser")
                         .html('<i class="fas fa-user-check fa-lg"></i>')
                         .attr("data-bs-target", "#activateUserModal")
-                        .attr("data-status", "inactive"); // ✅ Update attribute dynamically
+                        .attr("data-status", "inactive"); // Use attr instead of data()
 
                     badge.text("Inactive").removeClass("bg-success").addClass("bg-secondary");
                     statusColumn.text("Inactive").removeClass("text-success").addClass("text-secondary");
@@ -791,7 +796,6 @@ $result = $conn->query($sql);
         // ✅ Confirm Activate User
         $(document).on("click", "#confirmActivateUser", function() {
             let userId = $("#activate_user_id").val();
-            let row = $(`[data-id='${userId}']`).closest("tr");
 
             $.post("users/change_status.php", {
                 user_id: userId,
@@ -803,14 +807,16 @@ $result = $conn->query($sql);
                 if (res.status === "success") {
                     $("#activateUserModal").modal("hide");
 
-                    let btn = row.find(".suspendUser, .activateUser");
-                    let badge = row.find(".badge");
-                    let statusColumn = row.find(".status-column");
+                    // ✅ Update UI Immediately
+                    let button = $(`.suspendUser[data-id='${userId}'], .activateUser[data-id='${userId}']`).closest("tr");
+                    let btn = button.find(".suspendUser, .activateUser");
+                    let badge = button.find(".badge");
+                    let statusColumn = button.find(".status-column");
 
                     btn.removeClass("activateUser").addClass("suspendUser")
                         .html('<i class="fas fa-user-slash fa-lg"></i>')
                         .attr("data-bs-target", "#suspendUserModal")
-                        .attr("data-status", "active"); // ✅ Update attribute dynamically
+                        .attr("data-status", "active"); // Use attr instead of data()
 
                     badge.text("Active").removeClass("bg-secondary").addClass("bg-success");
                     statusColumn.text("Active").removeClass("text-secondary").addClass("text-success");
